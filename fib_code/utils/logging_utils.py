@@ -6,7 +6,7 @@ import os
 def new_logger_for_classic_fib_code_decoder(
     log_folder_path: str,
     name: str,
-    log_level: logging._Level,
+    log_level,
 ) -> logging.Logger:
     """Creates a new logger that can be passed to the decoder
 

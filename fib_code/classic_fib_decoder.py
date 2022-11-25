@@ -5,7 +5,7 @@ import copy
 import logging
 import math
 from argparse import ArgumentError
-from typing import Set
+from typing import Set, Tuple
 
 import numpy as np
 import rustworkx as rx
@@ -366,7 +366,7 @@ class ClassicFibDecoder:
 
         return error_pairs
 
-    def error_pairs2graph(self, error_graphs: Set[int, int, int]):
+    def error_pairs2graph(self, error_graphs: Set[Tuple[int, int, int]]):
         stab2node = {}
         graph = rx.PyGraph()
 
