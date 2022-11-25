@@ -1,0 +1,3 @@
+PyMatching>=2.0.0
+rustworkx>=0.12.0
+numpy>1.23.0 

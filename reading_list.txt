@@ -1,0 +1,4 @@
+# stuff I'm reading 
+QIP2021 | Constructing quantum codes from any classical code and their embedding...(Yingkai Ouyang): https://www.youtube.com/watch?v=aqbEp2TvRTk
+grugbrain: https://grugbrain.dev/
+
