@@ -40,6 +40,7 @@ class ClassicFibDecoder:
             halt (int, optional): _description_. Defaults to 9.
             name (str, optional): _description_. Defaults to "".
         """
+        logger.info(f"Starting new run... {original_errorword}")
 
         self.L = len(original_errorword[0])  # len
         assert math.log2(self.L) % 1 == 0, "L must be some 2**n where n is an int >= 1"
@@ -383,7 +384,9 @@ class ClassicFibDecoder:
 
         return graph, stab2node
 
-    def decode_fib_code(self):
+    def decode_fib_code(self, only_hori=False, only_verti=False):
+        if only_hori and only_verti:
+            raise Exception("Cannot decode using both Only Hori and Only Vert")
         """Run Decoder on given error board"""
 
         # generate graphs and mappings
@@ -462,32 +465,38 @@ class ClassicFibDecoder:
             )
 
             meta_round_count += 1
-            d_correction = h_correction * v_correction
-            hboard = self.board ^ h_correction  # apply correction
-            vboard = self.board ^ v_correction
-            dboard = self.board ^ d_correction
 
-            hcorsynd = [
-                (self._calc_syndrome(self.all_stabs_check_mat, hboard) == 1).sum(),
-                hboard,
-                "hori",
-            ]
-            vcorsynd = [
-                (self._calc_syndrome(self.all_stabs_check_mat, vboard) == 1).sum(),
-                vboard,
-                "verti",
-            ]
-            dcorsynd = [
-                (self._calc_syndrome(self.all_stabs_check_mat, dboard) == 1).sum(),
-                dboard,
-                "dcor",
-            ]
+            if only_hori:
+                self.board = self.board ^ h_correction  # apply correction
+            elif only_verti:
+                self.board = self.board ^ v_correction
+            else:
+                d_correction = h_correction * v_correction
+                hboard = self.board ^ h_correction  # apply correction
+                vboard = self.board ^ v_correction
+                dboard = self.board ^ d_correction
 
-            opts = [hcorsynd, vcorsynd, dcorsynd]
+                hcorsynd = [
+                    (self._calc_syndrome(self.all_stabs_check_mat, hboard) == 1).sum(),
+                    hboard,
+                    "hori",
+                ]
+                vcorsynd = [
+                    (self._calc_syndrome(self.all_stabs_check_mat, vboard) == 1).sum(),
+                    vboard,
+                    "verti",
+                ]
+                dcorsynd = [
+                    (self._calc_syndrome(self.all_stabs_check_mat, dboard) == 1).sum(),
+                    dboard,
+                    "dcor",
+                ]
 
-            winner = min(opts, key=lambda x: x[0])
-            cur_all_syndrome = winner[0]
-            self.board = winner[1]  # update board to best one
+                opts = [hcorsynd, vcorsynd, dcorsynd]
+
+                winner = min(opts, key=lambda x: x[0])
+                cur_all_syndrome = winner[0]
+                self.board = winner[1]  # update board to best one
             self.logger.info(f"Updated board is: \n{self.board}")
 
         self.logger.info("FINISHED DECODING")
