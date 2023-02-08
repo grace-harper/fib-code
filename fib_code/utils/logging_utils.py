@@ -20,14 +20,6 @@ def new_logger_for_classic_fib_code_decoder(
     """
     tt = datetime.datetime.now()
     unique_log_info = f"{name}_{tt}"
-    if log_level == logging.NOTSET:  # Then turn off logging
-        logger = logging.getLogger(
-            unique_log_info
-        )  # TODO -- find better way to  not log output
-        logger.addFilter(lambda record: 0)
-        logger.setLevel(log_level)
-        return logger
-    # Create a custom logger
     logger = logging.getLogger(unique_log_info)  # TODO -- find better way to log output
     f_handler = logging.FileHandler(
         os.path.join(log_folder_path, unique_log_info + "ClassicFibCode_probs.log")

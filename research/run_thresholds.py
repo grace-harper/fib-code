@@ -20,7 +20,7 @@ L=16:[]
 
 """
 
-all_L = [32, 64]
+all_L = [4]
 
 # threshold_logger = new_logger_for_classic_fib_code_decoder(0, f"ThresholdLog", logging.INFO) # too many logs rip x_x
 res_file = "results.txt"

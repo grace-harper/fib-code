@@ -1,13 +1,21 @@
+import copy
 
-class Runner():
+
+
+
+
+class Runner:
     def __init__(self) -> None:
         pass
-# set up logging 
 
-    def run_all(self, codewords, errorwords, decoders, error_masks=None, unique_logs=True):
-        pass 
-    
-    ''' 
+    # set up logging
+
+    def run_all(
+        self, codewords, errorwords, decoders, error_masks=None, unique_logs=True
+    ):
+        pass
+
+    """ 
     # MAKE SURE that decoder output matches codeword 
             # bad practice, fix this
         if winner[0] == 0:
@@ -18,4 +26,4 @@ class Runner():
 
         return f"sadness. Syndrome: {winner[0]}", winner
     
-    '''
+    """

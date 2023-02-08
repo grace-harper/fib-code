@@ -40,7 +40,7 @@ class ClassicFibDecoder:
             halt (int, optional): _description_. Defaults to 9.
             name (str, optional): _description_. Defaults to "".
         """
-        logger.info(f"Starting new run... {original_errorword}")
+        logger.debug(f"Starting new run... {original_errorword}")
 
         self.L = len(original_errorword[0])  # len
         assert math.log2(self.L) % 1 == 0, "L must be some 2**n where n is an int >= 1"
@@ -100,17 +100,17 @@ class ClassicFibDecoder:
             self.all_stabs_parity_rows_to_faces,
         ) = self.generate_check_matrix_from_faces(self.all_stab_faces)
 
-        self.logger.info(f" original_errorword is  {self.original_errorword}")
-        self.logger.info(f" error board is code {self.board}")
-        self.logger.info(f" initial symmetry is: {self.fundamental_symmetry}")
-        self.logger.info(
+        self.logger.debug(f" original_errorword is  {self.original_errorword}")
+        self.logger.debug(f" error board is code {self.board}")
+        self.logger.debug(f" initial symmetry is: {self.fundamental_symmetry}")
+        self.logger.debug(
             f"fundamental_stabilizer_parity_check_matrix is : {self.fundamental_stabilizer_parity_check_matrix}"
         )
-        self.logger.info(
+        self.logger.debug(
             f"fundamental_single_error_syndromes is : {self.fundamental_single_error_syndromes}"
         )
-        self.logger.info(f" Hx {self.Hx}")
-        self.logger.info(f" Hy is code {self.Hy}")
+        self.logger.debug(f" Hx {self.Hx}")
+        self.logger.debug(f" Hy is code {self.Hy}")
 
     def bit_to_rc(self, bit: int) -> int:
         """
@@ -385,6 +385,10 @@ class ClassicFibDecoder:
         return graph, stab2node
 
     def decode_fib_code(self, only_hori=False, only_verti=False):
+
+        self.logger.debug(
+            f"Running decoder: only_hori: {only_hori} only_verti: {only_verti}"
+        )
         if only_hori and only_verti:
             raise Exception("Cannot decode using both Only Hori and Only Vert")
         """Run Decoder on given error board"""
@@ -408,6 +412,7 @@ class ClassicFibDecoder:
             and cur_all_syndrome != 0
             and meta_round_count < self.halt
         ):
+            self.logger.debug(f"meta_round: {meta_round_count}")
             start_flag = False
             prev_all_syndrome = cur_all_syndrome
 
@@ -459,8 +464,8 @@ class ClassicFibDecoder:
                     )
                     self.logger.debug(f"h_corr: {h_correction}\nv_corr:{v_correction}")
 
-            self.logger.info(f"Meta-Round {meta_round_count}:")
-            self.logger.info(
+            self.logger.debug(f"Meta-Round {meta_round_count}:")
+            self.logger.debug(
                 f"h_correction: {h_correction}\nv_correction:{v_correction}"
             )
 
@@ -497,6 +502,6 @@ class ClassicFibDecoder:
                 winner = min(opts, key=lambda x: x[0])
                 cur_all_syndrome = winner[0]
                 self.board = winner[1]  # update board to best one
-            self.logger.info(f"Updated board is: \n{self.board}")
+            self.logger.debug(f"Updated board is: \n{self.board}")
 
-        self.logger.info("FINISHED DECODING")
+        self.logger.debug("FINISHED DECODING")
