@@ -1,8 +1,38 @@
 import numpy as np
 
 
+def generate_vertical_racetrack_error(codeword: np.ndarray, probability_of_error: int):
+    return generate_racetrack_error(codeword, probability_of_error, is_vertical=True)
+
+
+def generate_racetrack_error(
+    codeword: np.ndarray, probability_of_error: int, is_vertical: bool = True
+):
+
+    error_mask = np.zeros(codeword.shape, dtype=int)
+
+    num_rows = len(codeword)
+    num_col = len(codeword[0])
+
+    if is_vertical:
+        for column in range(num_col):
+            if np.random.choice(
+                [True, False], p=[probability_of_error, 1 - probability_of_error]
+            ):
+                error_mask[:, column] = 1
+
+    else:
+        for row in range(num_rows):
+            if np.random.choice(
+                [True, False], p=[probability_of_error, 1 - probability_of_error]
+            ):
+                error_mask[row, :] = 1
+
+    return error_mask ^ codeword, error_mask
+
+
 def generate_swath_error(
-    codeword_array: np.ndarray,
+    codeword: np.ndarray,
     width: int,
     offset: int = 0,
     probability_of_error: float = 1,
@@ -13,7 +43,7 @@ def generate_swath_error(
 
 
     Args:
-        codeword_array (np.ndarray): _description_
+        codeword (np.ndarray): _description_
         width (int): _description_
         offset (int, optional): _description_. Defaults to 0.
         probability_of_error (float, optional): _description_. Defaults to 1.
@@ -28,10 +58,10 @@ def generate_swath_error(
 
     if probability_of_error <= 0:
         raise Exception("Can't create errors with zero probability")
-    error_mask = np.zeros(codeword_array.shape, dtype=int)
+    error_mask = np.zeros(codeword.shape, dtype=int)
 
-    num_rows = len(codeword_array)
-    num_col = len(codeword_array[0])
+    num_rows = len(codeword)
+    num_col = len(codeword[0])
     if is_vertical:
         if probability_of_error == 1:
             error_mask[:, offset : width + offset] = 1
@@ -53,4 +83,4 @@ def generate_swath_error(
                         [0, 1], p=[1 - probability_of_error, probability_of_error]
                     )
 
-    return error_mask ^ codeword_array, error_mask
+    return error_mask ^ codeword, error_mask
