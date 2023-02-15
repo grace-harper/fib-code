@@ -14,6 +14,7 @@ from fib_code.error_generator import (
     generate_vertical_racetrack_error,
 )
 
+
 ERROR_TYPE = "error_type"
 V_RACETRACK = "vertical_racetrack"
 H_RACETRACK = "horizontal_racetrack"
@@ -35,12 +36,12 @@ def write_results_wrapper(res_folder):
     return write_results
 
 
-def setup_logging(udirpath, uniq):
-    log_folder_path = os.path.join("FibCodeLogs", udirpath)
-    if not os.path.exists(log_folder_path):
-        os.makedirs(log_folder_path)
+def setup_logging(log_folder_path, results_folder_path, uniq):
+    cur_run_log_folder_path = os.path.join(log_folder_path, uniq)
+    if not os.path.exists(cur_run_log_folder_path):
+        os.makedirs(cur_run_log_folder_path)
 
-    log_file_path = os.path.join(log_folder_path, uniq + ".log")
+    log_file_path = os.path.join(cur_run_log_folder_path, f"{uniq}.log")
 
     logger = logging.getLogger(uniq)
     f_handler = logging.FileHandler(log_file_path)
@@ -50,8 +51,7 @@ def setup_logging(udirpath, uniq):
     logger.addHandler(f_handler)
     logger.setLevel(logging.INFO)
 
-    results_path = "results"
-    results_storage_path = os.path.join(results_path, udirpath, f"{uniq}")
+    results_storage_path = os.path.join(results_folder_path, f"{uniq}")
     if not os.path.exists(results_storage_path):
         os.makedirs(results_storage_path)
     results_writer = write_results_wrapper(results_storage_path)
@@ -92,9 +92,10 @@ def test_errors(
 
             start = time.perf_counter()
             for i in range(round_count):
-                logger.info(
-                    f"Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
-                )
+                if i % 100 == 0:
+                    logger.info(
+                     f"Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
+                    )
 
                 codeword = generate_init_code_word(
                     L_size
@@ -130,17 +131,20 @@ def test_errors(
 
 
 def main(uniq):
-    logger, results_writer = setup_logging("vertical_tracetrack_error", uniq)
+    fib_code_log_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/logfib"
+    results_folder_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/results"
+
+    logger, results_writer = setup_logging(fib_code_log_path, results_folder_path,  uniq)
 
     res = test_errors(
         logger,
         results_writer,
         generate_vertical_racetrack_error,
-        Lstack=[16],
+        Lstack=[8],
         pstack=[0.20],
-        round_count=10,
+        round_count=1,
     )
 
 
 if __name__ == "__main__":
-    main("test1")
+    main("test2")
