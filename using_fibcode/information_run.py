@@ -14,7 +14,6 @@ from fib_code.error_generator import (
     generate_vertical_racetrack_error,
 )
 
-
 ERROR_TYPE = "error_type"
 V_RACETRACK = "vertical_racetrack"
 H_RACETRACK = "horizontal_racetrack"
@@ -92,17 +91,20 @@ def test_errors(
 
             start = time.perf_counter()
             for i in range(round_count):
-                if i % 100 == 0:
-                    logger.info(
-                     f"Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
-                    )
+
+                logger.info(
+                    f"==================================Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
+                )
 
                 codeword = generate_init_code_word(
                     L_size
                 )  # generate an initial codeword. The default one bit at bottom center and cellular automata rules upward
+
                 error_board, error_mask = error_generator(
                     codeword=codeword, probability_of_error=p
                 )  # Add errors to your code!
+                logger.info(f"error_board:\n{error_board}")
+                logger.info(f"error_mask:\n{error_mask}")
                 hori_success += run_decoder(
                     logger, codeword, L_size, error_board, True, False
                 )
@@ -113,8 +115,6 @@ def test_errors(
                     logger, codeword, L_size, error_board, False, False
                 )
 
-                if i % 100 == 0:
-                    logger.info(f"Current Error Board: {error_board}")
             end = time.perf_counter()
 
             curprobres[L_size]["vertical_success"] = verti_success / round_count
@@ -134,17 +134,17 @@ def main(uniq):
     fib_code_log_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/logfib"
     results_folder_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/results"
 
-    logger, results_writer = setup_logging(fib_code_log_path, results_folder_path,  uniq)
+    logger, results_writer = setup_logging(fib_code_log_path, results_folder_path, uniq)
 
     res = test_errors(
         logger,
         results_writer,
         generate_vertical_racetrack_error,
         Lstack=[8],
-        pstack=[0.20],
-        round_count=1,
+        pstack=[0.15, 0.20],
+        round_count=3,
     )
 
 
 if __name__ == "__main__":
-    main("test2")
+    main("get_small_runs")
