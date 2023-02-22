@@ -330,6 +330,7 @@ class ClassicFibDecoder:
     def generate_all_possible_error_syndromes(
         self, parity_check_matrix: np.array, no_bits: int = None
     ):
+        """Written from frame of reference of fundamental board and uses symmetry defined by parity_check_matrix """
 
         # "there's gotta be a smarter way to do this "
         if no_bits is None:
