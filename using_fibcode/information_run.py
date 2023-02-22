@@ -7,13 +7,13 @@ import pprint
 import sys
 import time
 
-from fib_code.classic_fib_decoder import ClassicFibDecoder
+from fib_code.classic_fib_decoder import ClassicFibDecoder, FibCodeMetadata
 from fib_code.code_generator import generate_init_code_word
 from fib_code.error_generator import (
+    generate_horizontal_racetrack_error,
     generate_racetrack_error,
     generate_vertical_racetrack_error,
 )
-
 
 ERROR_TYPE = "error_type"
 V_RACETRACK = "vertical_racetrack"
@@ -59,10 +59,10 @@ def setup_logging(log_folder_path, results_folder_path, uniq):
     return logger, results_writer
 
 
-def run_decoder(logger, given_codeword, L, given_error, only_hori, only_verti):
+def run_decoder(logger, given_codeword, L, given_error, probe_indices):
     error = copy.deepcopy(given_error)
-    decoder = ClassicFibDecoder(error, logger)
-    decoder.decode_fib_code(only_hori=only_hori, only_verti=only_verti)
+    decoder = ClassicFibDecoder(error, logger, probe_fundamental_indices=probe_indices)
+    decoder.decode_fib_code(meta_only=True)
     decoder.board.shape = (L // 2, L)
     given_codeword.shape = (L // 2, L)
     return 1 if (decoder.board == given_codeword).all() else 0
@@ -94,7 +94,7 @@ def test_errors(
             for i in range(round_count):
                 if i % 100 == 0:
                     logger.info(
-                     f"Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
+                        f"Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
                     )
 
                 codeword = generate_init_code_word(
@@ -103,14 +103,27 @@ def test_errors(
                 error_board, error_mask = error_generator(
                     codeword=codeword, probability_of_error=p
                 )  # Add errors to your code!
+                md = FibCodeMetadata(L_size)
                 hori_success += run_decoder(
-                    logger, codeword, L_size, error_board, True, False
+                    logger,
+                    codeword,
+                    L_size,
+                    error_board,
+                    [md.fundamental_hori_probe_indx],
                 )
                 verti_success += run_decoder(
-                    logger, codeword, L_size, error_board, False, True
+                    logger,
+                    codeword,
+                    L_size,
+                    error_board,
+                    [md.fundamental_verti_probe_indx],
                 )
                 norm_success += run_decoder(
-                    logger, codeword, L_size, error_board, False, False
+                    logger,
+                    codeword,
+                    L_size,
+                    error_board,
+                    [md.fundamental_hori_probe_indx, md.fundamental_verti_probe_indx],
                 )
 
                 if i % 100 == 0:
@@ -134,17 +147,17 @@ def main(uniq):
     fib_code_log_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/logfib"
     results_folder_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/results"
 
-    logger, results_writer = setup_logging(fib_code_log_path, results_folder_path,  uniq)
+    logger, results_writer = setup_logging(fib_code_log_path, results_folder_path, uniq)
 
     res = test_errors(
         logger,
         results_writer,
-        generate_vertical_racetrack_error,
-        Lstack=[8],
+        generate_horizontal_racetrack_error,
+        Lstack=[16],
         pstack=[0.20],
-        round_count=1,
+        round_count=3,
     )
 
 
 if __name__ == "__main__":
-    main("test2")
+    main("test_probe_index_self2")

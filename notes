@@ -1,0 +1,8 @@
+results from running probe indx 
+
+FINISHED LP: @ 2023-02-22 17:58:31.265880 ---> L=16, p=0.2,  H:V:N=0.0:0.8:0.3 # 10 runs? 
+(fibcode) graceharperibm@Graces-MacBook-Pro using_fibcode % python information_run.py
+FINISHED LP: @ 2023-02-22 17:59:06.063938 ---> L=16, p=0.2,  H:V:N=0.2:1.0:0.4 # 10 runs? 
+(fibcode) graceharperibm@Graces-MacBook-Pro using_fibcode % python information_run.py
+FINISHED LP: @ 2023-02-22 18:08:23.657866 ---> L=16, p=0.2,  H:V:N=0.024:0.83:0.185  # 1000 rounds
+FINISHED LP: @ 2023-02-22 18:24:30.606640 ---> L=16, p=0.2,  H:V:N=0.027:0.829:0.198 #1000 rounds 

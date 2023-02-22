@@ -5,6 +5,12 @@ def generate_vertical_racetrack_error(codeword: np.ndarray, probability_of_error
     return generate_racetrack_error(codeword, probability_of_error, is_vertical=True)
 
 
+def generate_horizontal_racetrack_error(
+    codeword: np.ndarray, probability_of_error: int
+):
+    return generate_racetrack_error(codeword, probability_of_error, is_vertical=False)
+
+
 def generate_racetrack_error(
     codeword: np.ndarray, probability_of_error: int, is_vertical: bool = True
 ):

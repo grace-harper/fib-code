@@ -9,9 +9,10 @@ class DecoderGraph:
     def __init__(
         self,
         matching_graph: rx.PyGraph,
+        probe_indices,
         hori_probe_fault_id: int,
         verti_probe_fault_id: int,
-        stab2node: Dict[int, int],
+        symmetry_stab2node: Dict[int, int],
     ) -> None:
         """_summary_
 
@@ -26,7 +27,8 @@ class DecoderGraph:
         self.matching_graph = matching_graph
         self.hori_probe_fault_id = hori_probe_fault_id
         self.verti_probe_fault_id = verti_probe_fault_id
-        self.stab2node = stab2node
+        self.symmetry_stab2node = symmetry_stab2node
+        self.probe_indices = probe_indices
 
     def graph_label_attr_fn(self):
         def node_attr(node):
@@ -37,13 +39,14 @@ class DecoderGraph:
 
         return node_attr, edge_attr
 
-    def decode_prob(self, syndrome: np.array):
-        """[summary]
-        Args:
-            syndrome (np.array): _description_
+    def decode_prob(self, symmetry_indx_syndrome: np.array):
+        # convert syndrome to node
+        cur_node_syndrome = [0] * len(symmetry_indx_syndrome)
+        for stabindx, value in enumerate(symmetry_indx_syndrome):
+            nodeindx = self.symmetry_stab2node[stabindx]
+            cur_node_syndrome[nodeindx] = value  # TODO is right?
 
-        Returns:
-            _type_: _description_
-        """
-        res = self.matching_decoder.decode(syndrome)
+        res = self.matching_decoder.decode(cur_node_syndrome)
+
+        return [res[indx] for indx in self.probe_indices], res
         return res[self.hori_probe_fault_id], res[self.verti_probe_fault_id], res
