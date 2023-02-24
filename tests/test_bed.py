@@ -1,13 +1,11 @@
 # https://www.youtube.com/watch?v=RHyE_erqAe0,
 import copy
+import logging
 import math
 import unittest
 
 import numpy as np
-
-from fib_code.error_generator import generate_swath_error
-from fib_code.code_generator import generate_init_code_word
-from fib_code.classic_fib_decoder import ClassicFibDecoder import ClassicFibCode
+from fib_code.classic_fib_decoder import ClassicFibDecoder
 from fib_code.code_generator import generate_init_code_word
 from fib_code.error_generator import generate_swath_error
 
@@ -15,11 +13,18 @@ from fib_code.error_generator import generate_swath_error
 class ClassicFibCodeTest(unittest.TestCase):
     """sanity checks"""
 
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName)
+        self.logger = self.dead_logger()
+
+    def dead_logger(self):
+        return logging.getLogger("dummy")
+
     def test_basic(self):
-        f = ClassicFibCode(8)
+        f = generate_init_code_word(L=8)
 
     def test_bit_representation_trans(self):
-        f = ClassicFibCode(32)  # L = 32
+        decoder = ClassicFibDecoder(generate_init_code_word(32), self.logger)  # L = 32
         trans_tests = [
             [(0, 0), 0],
             [(4, 1), 129],
@@ -33,19 +38,19 @@ class ClassicFibCodeTest(unittest.TestCase):
             rc = test[0]
             sol = test[1]
             assert (
-                f.rc_to_bit(rc[0], rc[1]) == sol
+                decoder.rc_to_bit(rc[0], rc[1]) == sol
             ), f"{rc} did not convert to correct bit rep: {sol}"
 
         for test in trans_tests:
             bit = test[1]
             sol = test[0]
             assert (
-                f.bit_to_rc(bit) == sol
+                decoder.bit_to_rc(bit) == sol
             ), f"{bit} did not convert to correct rc rep: {sol}"
 
     def test_x_shift(self):
         for L in [4, 8, 16, 32]:
-            f = ClassicFibCode(L)
+            decoder = ClassicFibDecoder(generate_init_code_word(L), self.logger)
             input = np.array(list(range((L**2) // 2)))
 
             # shift_by_x
@@ -63,7 +68,7 @@ class ClassicFibCodeTest(unittest.TestCase):
                 s = xt[0]
                 sol = xt[1]
 
-                ans = f.shift_by_x(input, s)
+                ans = decoder.shift_by_x(input, s)
                 assert (ans == sol).all(), f"for {s} the result: {ans} is not {sol}"
                 assert (
                     ans.shape == sol.shape
@@ -71,7 +76,7 @@ class ClassicFibCodeTest(unittest.TestCase):
 
     def test_x_shift_multi(self):
         L = 8
-        f = ClassicFibCode(L)
+        decoder = ClassicFibDecoder(generate_init_code_word(L), self.logger)
         several_valued = np.arange(0, (L**2) // 2)
 
         sol = np.arange(0, (L**2) // 2)
@@ -85,7 +90,7 @@ class ClassicFibCodeTest(unittest.TestCase):
             row[0] = prev
 
         sol.shape = (L**2) // 2
-        ans = f.shift_by_x(several_valued)
+        ans = decoder.shift_by_x(several_valued)
         assert (ans == sol).all(), f"The result: {ans} is not the expected: {sol}"
         assert (
             ans.shape == sol.shape
@@ -93,7 +98,7 @@ class ClassicFibCodeTest(unittest.TestCase):
 
     def test_y_shift(self):
         for L in [4, 8, 16, 32]:
-            f = ClassicFibCode(L)
+            decoder = ClassicFibDecoder(generate_init_code_word(L), self.logger)
             input = np.array(list(range((L**2) // 2)))
 
             shiftbyminus1 = np.array(
@@ -126,7 +131,7 @@ class ClassicFibCodeTest(unittest.TestCase):
             for yt in ytests:
                 s = yt[0]
                 sol = yt[1]
-                ans = f.shift_by_y(input, s)
+                ans = decoder.shift_by_y(input, s)
                 assert (ans == sol).all(), f"for {s} the ans: {ans} was not {sol} "
                 assert (
                     ans.shape == sol.shape
@@ -134,13 +139,13 @@ class ClassicFibCodeTest(unittest.TestCase):
 
     def test_y_shift_multi(self):
         L = 8
-        f = ClassicFibCode(L)
+        decoder = ClassicFibDecoder(generate_init_code_word(L), self.logger)
         several_valued = np.arange(0, (L**2) // 2)
         sol = np.arange(0, ((L**2) // 2) - L)
         new_top_row = np.arange(((L**2) // 2) - L, (L**2) // 2)
         sol = np.concatenate((new_top_row, sol), axis=0)
 
-        ans = f.shift_by_y(several_valued)
+        ans = decoder.shift_by_y(several_valued)
         assert (ans == sol).all(), f"The result: {ans} is not the expected: {sol}"
         assert (
             ans.shape == sol.shape
@@ -155,14 +160,16 @@ class ClassicFibCodeTest(unittest.TestCase):
                 [0, 0, 1, 0, 0, 1, 1, 1],
             ]
         )
-        f = ClassicFibCode(4)
+
+        L = 4
+        decoder = ClassicFibDecoder(generate_init_code_word(L), self.logger)
         startarr = [
             0,
-        ] * 4
-        startarr[(4 // 2) - 1] = 1
-        fund_sym = f._generate_init_symmetry(start_arr=startarr)
-        fund_sym.shape = (f.L // 2, f.L)
-        fcheck, _ = f.generate_check_matrix_from_faces(fund_sym)
+        ] * L
+        startarr[(L // 2) - 1] = 1
+        fund_sym = decoder._generate_init_symmetry(start_arr=startarr)
+        fund_sym.shape = (L // 2, L)
+        fcheck, _ = decoder.generate_check_matrix_from_faces(fund_sym)
 
         assert (
             fcheck.shape == fcheck_sol.shape
@@ -170,14 +177,15 @@ class ClassicFibCodeTest(unittest.TestCase):
         assert (fcheck == fcheck_sol).all(), f"\n {fcheck}\n should be\n{fcheck_sol}"
 
         size32 = (32**2) // 2
-        f = ClassicFibCode(32)
+        L = 32
         startarr = [
             0,
         ] * 32
         startarr[((32 // 2) - 1)] = 1
-        fund_sym = f._generate_init_symmetry(start_arr=startarr)
-        fund_sym.shape = (f.L // 2, f.L)
-        fcheck, _ = f.generate_check_matrix_from_faces(fund_sym)
+        decoder = ClassicFibDecoder(generate_init_code_word(L), self.logger)
+        fund_sym = decoder._generate_init_symmetry(start_arr=startarr)
+        fund_sym.shape = (L // 2, L)
+        fcheck, _ = decoder.generate_check_matrix_from_faces(fund_sym)
 
         expected_shape = (128, size32)
         assert (
