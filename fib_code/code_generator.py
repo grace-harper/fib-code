@@ -3,7 +3,9 @@ from typing import Union
 import numpy as np
 
 
-def generate_init_code_word(L: int, start_arr: Union[np.array, None] = None) ->np.array:
+def generate_init_code_word(
+    L: int, start_arr: Union[np.array, None] = None
+) -> np.array:
     """_summary_
 
     Args:

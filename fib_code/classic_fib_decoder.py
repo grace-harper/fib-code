@@ -199,7 +199,8 @@ class ClassicFibDecoder:
 
     def _generate_plus_x_trans_matrix(self) -> np.array:
         """generate transition matrix for shifting every bit by x
-        "Takes bit to bit + 1 mod rownum aka shifts bit to the right but wraps around its current row"""
+        "Takes bit to bit + 1 mod rownum aka shifts bit to the right but wraps around its current row
+        """
         H = np.zeros((self.no_bits, self.no_bits), dtype=int)
         for b in range(self.no_bits):
             new_bit = self.shift_by_x_scalar(b)
@@ -208,7 +209,8 @@ class ClassicFibDecoder:
 
     def _generate_plus_y_trans_matrix(self) -> np.array:
         """generate transition matrix for shifting every bit by y
-        "takes bit to bit + L mod L//2 aka shifts bit the row below but very bottom row shifts to be the 0th row"""
+        "takes bit to bit + L mod L//2 aka shifts bit the row below but very bottom row shifts to be the 0th row
+        """
         H = np.zeros((self.no_bits, self.no_bits), dtype=int)
         for b in range(self.no_bits):
             new_bit = self.shift_by_y_scalar(b)
@@ -421,7 +423,6 @@ class ClassicFibDecoder:
             and cur_all_syndrome != 0
             and meta_round_count < self.halt
         ):
-
             self.logger.debug(f"meta_round:{meta_round_count}")
             start_flag = False
             prev_all_syndrome = cur_all_syndrome

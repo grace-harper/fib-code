@@ -83,6 +83,7 @@ def test_errors(
     logger.info(
         f"Running test_errors of>error_type {error_type},Lstack:{Lstack},pstack:{pstack},round_count:{round_count}"
     )
+
     error_generator = ERROR_TYPES[error_type]
     results = {}
     for p in pstack:
@@ -91,18 +92,21 @@ def test_errors(
         curprobres["roundsize"] = round_count
 
         for L_size in Lstack:
+            fd = FibCodeMetadata(L_size)
+            tip = (L_size // 2) - 1
+            # probes = [(5 * L_size) + tip - 2, (4 * L_size) + tip + 3]
+            probes = [(7 * L_size) + tip - 2, (4 * L_size) + tip + 3]
+            logger.info(f"probes: {probes}")
             curprobres[L_size] = {}
             # append to file
 
-            verti_success = 0
-            hori_success = 0
-            norm_success = 0
+            success = 0
 
             start = time.perf_counter()
             for i in range(round_count):
                 if i % 100 == 0:
                     logger.info(
-                        f"Running at {dt.datetime.now()}... p={p}, L={L_size}  on round: {i}... current info is H:V:N={hori_success}:{verti_success}:{norm_success}"
+                        f"Running at {dt.datetime.now()}... p={p},L={L_size},round={i},success_rate={success/round_count}"
                     )
 
                 codeword = generate_init_code_word(
@@ -111,39 +115,16 @@ def test_errors(
                 error_board, error_mask = error_generator(
                     codeword=codeword, probability_of_error=p
                 )  # Add errors to your code!
-                md = FibCodeMetadata(L_size)
-                hori_success += run_decoder(
-                    logger,
-                    codeword,
-                    L_size,
-                    error_board,
-                    [md.fundamental_hori_probe_indx],
-                )
-                verti_success += run_decoder(
-                    logger,
-                    codeword,
-                    L_size,
-                    error_board,
-                    [md.fundamental_verti_probe_indx],
-                )
-                norm_success += run_decoder(
-                    logger,
-                    codeword,
-                    L_size,
-                    error_board,
-                    [md.fundamental_hori_probe_indx, md.fundamental_verti_probe_indx],
-                )
 
+                success += run_decoder(logger, codeword, L_size, error_board, probes)
                 if i % 100 == 0:
                     logger.info(f"Current Error Board: {error_board}")
             end = time.perf_counter()
 
-            curprobres[L_size]["vertical_success"] = verti_success / round_count
-            curprobres[L_size]["horizontal_success"] = hori_success / round_count
-            curprobres[L_size]["both_success"] = norm_success / round_count
+            curprobres[L_size][success_rate] = success / round_count
             curprobres[L_size]["runtime"] = end - start
 
-            fin_line = f"FINISHED LP: @ {dt.datetime.now()} ---> L={L_size}, p={p},  H:V:N={hori_success/round_count}:{verti_success/round_count}:{norm_success/round_count}"
+            fin_line = f"FINISHED LP: @ {dt.datetime.now()} ---> L={L_size},p={p},success_rate={success/round_count}"
             logger.info(fin_line)
             print(fin_line)
         results_writer(curprobres, f"probability_of_error={p}")
@@ -158,9 +139,9 @@ def main(uniq, fib_code_log_path, results_folder_path, error_type):
         logger,
         results_writer,
         error_type,
-        Lstack=[16],
+        Lstack=[32],
         pstack=[0.20],
-        round_count=3,
+        round_count=1000,
     )
 
 
@@ -168,7 +149,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 5:
-        raise Exception("requires runname, logpath, respath")
+        raise Exception("requires runname, logpath, respath, errrortype")
 
     runname = sys.argv[1]
     logpath = sys.argv[2]

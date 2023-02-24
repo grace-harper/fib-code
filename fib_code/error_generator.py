@@ -14,7 +14,6 @@ def generate_horizontal_racetrack_error(
 def generate_racetrack_error(
     codeword: np.ndarray, probability_of_error: int, is_vertical: bool = True
 ):
-
     error_mask = np.zeros(codeword.shape, dtype=int)
 
     num_rows = len(codeword)

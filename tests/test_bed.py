@@ -229,6 +229,5 @@ class ClassicFibCodeTest(unittest.TestCase):
     # Those graph libraries tho
 
 
-
 if __name__ == "__main__":
     unittest.main()
