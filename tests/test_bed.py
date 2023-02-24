@@ -228,67 +228,6 @@ class ClassicFibCodeTest(unittest.TestCase):
 
     # Those graph libraries tho
 
-    def test_node_indexing_graph(self):
-        pass
-        # create a board
-
-        # take subnodes of that board and add them to a graph
-
-        # how does pymatching determine what indices go to what nodes?
-
-        # get back matching
-
-        # make sure matching goes to right nodes
-
-        # # does this even work as I think?
-        # def test_all_zeros_board(self):
-        #     L = 32
-        #     f = ClassicFibCode(L, p=0, code_bottom_row_start_sequence=np.zeros(32))
-        #     f.decode_fib_code()
-        #     expected_size = ((L**2) // 2,)
-        #     assert (
-        #         f.board.shape == expected_size
-        #     ), f"Board shape is {f.board.shape} instead of {expected_size}"
-        #     assert (
-        #         f.board == np.zeros(expected_size)
-        #     ).all(), f"f.board isn't all zeros.. {f.board}."
-
-        # def test_decoding_finishes(self):
-        #     L = 8
-        #     f = ClassicFibCode(L, p=0.05)
-        #     f.decode_fib_code()
-
-        # def test_generate_error_pairs(self):
-        #     f = ClassicFibCode(8)
-
-        """error pairs L=4 on fundamental  in (stab, stab, fundboard) notation 
-        (0, 1, 0)
-(0, 2, 1)
-(0, 3, 2)
-(1, 2, 4)
-(2, 3, 5)
-(0, 1, 5)
-(2, 3, 6)
-(1, 3, 7)
-        """
-
-
-# def test_make_errors(self):
-#     [[1 1 0 1 0 1 1 0]
-#  [0 1 0 1 0 1 0 0]
-#  [0 0 1 1 1 0 0 0]
-#  [0 0 0 1 0 0 0 0]]
-
-
-# [[1 1 0 0 0 0 0 0]
-#  [1 1 0 0 0 0 0 0]
-#  [1 1 0 0 0 0 0 0]
-#  [1 1 0 0 0 0 0 0]]
-
-# [[0 0 0 1 0 1 1 0]
-#  [1 0 0 1 0 1 0 0]
-#  [1 1 1 1 1 0 0 0]
-#  [1 1 0 1 0 0 0 0]]
 
 
 if __name__ == "__main__":

@@ -22,6 +22,10 @@ HORI = "horizontal decoder"
 VERTI = "vertical decoder"
 BOTH = "both decoder"
 
+ERROR_TYPES = {
+    "vr": generate_vertical_racetrack_error,
+    "hr": generate_vertical_racetrack_error,
+}
 round_size = "rounds_size"
 success_rate = "success_rate"
 
@@ -71,11 +75,16 @@ def run_decoder(logger, given_codeword, L, given_error, probe_indices):
 def test_errors(
     logger,
     results_writer,
-    error_generator,
+    error_type,
     Lstack=[4, 8, 16, 32, 64],
     pstack=[0.2],
     round_count=10000,
 ):
+
+    logger.info(
+        f"Running test_errors of>error_type {error_type},Lstack:{Lstack},pstack:{pstack},round_count:{round_count}"
+    )
+    error_generator = ERROR_TYPES[error_type]
     results = {}
     for p in pstack:
         curprobres = results[p] = {}  # new file
@@ -143,16 +152,13 @@ def test_errors(
     return results
 
 
-def main(uniq):
-    fib_code_log_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/logfib"
-    results_folder_path = "/Users/graceharperibm/correcting/Fib/ClassicFibInfo/results"
-
+def main(uniq, fib_code_log_path, results_folder_path, error_type):
     logger, results_writer = setup_logging(fib_code_log_path, results_folder_path, uniq)
 
-    res = test_errors(
+    test_errors(
         logger,
         results_writer,
-        generate_horizontal_racetrack_error,
+        error_type,
         Lstack=[16],
         pstack=[0.20],
         round_count=3,
@@ -160,4 +166,13 @@ def main(uniq):
 
 
 if __name__ == "__main__":
-    main("test_probe_index_self2")
+    import sys
+
+    if len(sys.argv) < 5:
+        raise Exception("requires runname, logpath, respath")
+
+    runname = sys.argv[1]
+    logpath = sys.argv[2]
+    respath = sys.argv[3]
+    error_type = sys.argv[4]
+    main(runname, logpath, respath, error_type)
